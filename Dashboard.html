@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact Event Log</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for dark theme and Inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        /* Custom border left for severity indicator */
+        .impact-high {
+            border-left: 6px solid #ef4444; /* red-500 */
+        }
+        .impact-moderate {
+            border-left: 6px solid #f97316; /* orange-600 */
+        }
+    </style>
+    <!-- Load Firebase SDKs -->
+    <script type="module">
+        // Import all required Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, onSnapshot, collection, query, limit, orderBy, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- Global Variables for Canvas Environment ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db = null;
+        let auth = null;
+        window.isAuthReady = false;
+        window.isConfigPresent = !!firebaseConfig;
+
+        if (window.isConfigPresent) {
+            // Initialize Firebase App and Services
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            setLogLevel('Debug');
+
+            // Expose required Firebase functions globally for the main script
+            window.db = db;
+            window.appId = appId;
+            window.onSnapshot = onSnapshot;
+            window.collection = collection;
+            window.query = query;
+            window.limit = limit;
+            window.orderBy = orderBy;
+            
+            // 2. Authenticate
+            (async () => {
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    window.isAuthReady = true;
+                    // Start the dashboard logic once authenticated
+                    if (typeof initDashboard === 'function') {
+                        initDashboard();
+                    }
+                } catch (error) {
+                    console.error("Firebase Auth Error:", error);
+                    document.getElementById('status-message').textContent = 'Error: Auth Failed.';
+                    // Fallback to mock data if auth fails but config was present
+                    if (typeof initDashboard === 'function') {
+                        initDashboard(true); // Pass flag to use mock data
+                    }
+                }
+            })();
+        } else {
+            // Handle missing configuration gracefully (start with mock data immediately)
+            document.getElementById('status-message').textContent = 'Warning: Local Simulation';
+            if (typeof initDashboard === 'function') {
+                initDashboard(true); // Pass flag to use mock data
+            }
+        }
+    </script>
+
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4 sm:p-8">
+
+    <header class="mb-8">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-400">Impact Event History</h1>
+        <p class="text-gray-400 mt-1">Logged drops from the ADXL375 sensor.</p>
+    </header>
+
+    <main class="lg:grid lg:grid-cols-3 gap-6">
+
+        <!-- Info Card (Left Column) -->
+        <div class="lg:col-span-1 bg-gray-800 p-6 rounded-xl custom-shadow h-full mb-6 lg:mb-0">
+            <h2 class="text-xl font-semibold mb-4 text-blue-300">System Status</h2>
+            <p class="text-gray-400 mb-4">This dashboard displays historical impact events logged by your ESP32 when the G-Force exceeded a defined threshold (currently showing the last 20 events).</p>
+            <dl class="text-gray-400">
+                <div class="flex justify-between py-1 border-b border-gray-700">
+                    <dt class="font-medium">Connection</dt>
+                    <dd class="text-right text-yellow-500 font-bold" id="status-message">Waiting for Auth...</dd>
+                </div>
+                <div class="flex justify-between py-1 border-b border-gray-700">
+                    <dt class="font-medium">Data Collection</dt>
+                    <dd class="text-right">historical_impacts</dd>
+                </div>
+                <div class="flex justify-between py-1">
+                    <dt class="font-medium">Trigger Threshold</dt>
+                    <dd class="text-right">~8.0 G</dd>
+                </div>
+            </dl>
+        </div>
+        
+        <!-- Impact List (Right Column) -->
+        <div class="lg:col-span-2">
+            <h2 class="text-xl font-semibold mb-4 text-blue-300">Latest Impact Events</h2>
+            
+            <div id="event-list" class="space-y-4">
+                <!-- Impact event cards will be injected here -->
+                <p id="loading-message" class="text-gray-500 p-4 bg-gray-800 rounded-xl">Loading data log...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        
+        // Thresholds for visual indicators
+        const CRITICAL_THRESHOLD = 12.0; 
+        const MODERATE_THRESHOLD = 8.0; 
+        const MAX_EVENTS_DISPLAY = 20;
+
+        /**
+         * Converts Firestore timestamp (or string) to a readable, local format.
+         */
+        function formatTimestamp(timestamp) {
+            try {
+                // Handle Firebase Timestamp object
+                if (timestamp && typeof timestamp.toDate === 'function') {
+                    return timestamp.toDate().toLocaleString();
+                }
+                // Handle standard JS Date object or string
+                return new Date(timestamp).toLocaleString();
+            } catch (e) {
+                return "Unknown Time";
+            }
+        }
+
+        /**
+         * Returns an array of mock impact events for local simulation.
+         */
+        function getMockEvents() {
+            const now = Date.now();
+            const events = [];
+
+            // Helper to generate a timestamp in the past
+            const createTimestamp = (minutesAgo) => new Date(now - (minutesAgo * 60 * 1000));
+            
+            // Events are generated newest first (to match the descending order query)
+            events.push({ g_force: 15.1, timestamp: createTimestamp(5) }); // Critical
+            events.push({ g_force: 10.5, timestamp: createTimestamp(12) }); // Moderate
+            events.push({ g_force: 18.9, timestamp: createTimestamp(25) }); // Critical
+            events.push({ g_force: 9.2, timestamp: createTimestamp(30) }); // Moderate
+            events.push({ g_force: 11.8, timestamp: createTimestamp(45) }); // Moderate
+            events.push({ g_force: 8.1, timestamp: createTimestamp(60) });  // Moderate
+            events.push({ g_force: 13.0, timestamp: createTimestamp(90) }); // Critical
+
+            return events;
+        }
+
+        /**
+         * Renders the list of impact events based on the data fetched from Firestore or mock data.
+         */
+        function renderImpactEvents(events) {
+            const eventList = document.getElementById('event-list');
+            eventList.innerHTML = ''; 
+
+            if (events.length === 0) {
+                eventList.innerHTML = '<p class="text-gray-500 p-4 bg-gray-800 rounded-xl">No impact events logged yet. Waiting for first significant drop.</p>';
+                return;
+            }
+
+            events.forEach(event => {
+                const gForce = parseFloat(event.g_force).toFixed(2);
+                const timestamp = formatTimestamp(event.timestamp);
+
+                let severityClass = 'impact-moderate';
+                let severityText = 'Moderate';
+                let severityColor = 'text-orange-500';
+
+                // Classify severity based on G-force value
+                if (gForce >= CRITICAL_THRESHOLD) {
+                    severityClass = 'impact-high';
+                    severityText = 'CRITICAL IMPACT';
+                    severityColor = 'text-red-500 font-bold';
+                } else if (gForce < MODERATE_THRESHOLD) {
+                    // Only applies if lower threshold events are somehow logged
+                    severityText = 'Low Impact';
+                    severityColor = 'text-green-500';
+                    severityClass = '';
+                }
+
+                const cardHtml = `
+                    <div class="bg-gray-800 p-5 rounded-xl custom-shadow ${severityClass} transition duration-300 hover:bg-gray-700">
+                        <div class="flex justify-between items-center mb-2 border-b border-gray-700 pb-2">
+                            <span class="text-sm text-gray-400">Event Time (Local)</span>
+                            <span class="text-gray-300 font-medium">${timestamp}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-semibold text-blue-300">G-Force Peak</span>
+                            <span class="text-3xl font-extrabold ${severityColor}">${gForce} g</span>
+                        </div>
+                        <p class="text-right text-sm mt-1">Severity: <span class="${severityColor}">${severityText}</span></p>
+                    </div>
+                `;
+                eventList.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        /**
+         * Initializes the Firestore listener or loads mock data.
+         * @param {boolean} useMock - If true, loads local mock data instead of Firestore.
+         */
+        window.initDashboard = function(useMock = false) {
+            const statusMessage = document.getElementById('status-message');
+
+            if (useMock || (!window.db && !window.isConfigPresent)) {
+                // Scenario: Running locally without Firebase configuration
+                statusMessage.textContent = 'Local Simulation Mode';
+                statusMessage.classList.remove('text-yellow-500', 'text-red-500');
+                statusMessage.classList.add('text-green-500');
+                renderImpactEvents(getMockEvents());
+                return;
+            }
+
+            if (!window.db || !window.isAuthReady) {
+                console.error("Firebase not ready or initialized.");
+                return;
+            }
+            
+            // Define the collection path (consistent with event_logging_plan.md)
+            const collectionPath = `artifacts/${window.appId}/public/data/historical_impacts`;
+            
+            // Create a query: get the last 20 events, ordered by timestamp descending
+            const q = window.query(
+                window.collection(window.db, collectionPath),
+                window.orderBy('timestamp', 'desc'),
+                window.limit(MAX_EVENTS_DISPLAY)
+            );
+
+            // Set up the real-time listener (onSnapshot)
+            window.onSnapshot(q, (snapshot) => {
+                const events = [];
+                snapshot.forEach(doc => {
+                    events.push(doc.data());
+                });
+                
+                renderImpactEvents(events);
+                statusMessage.textContent = 'Live Data';
+                statusMessage.classList.remove('text-yellow-500', 'text-red-500');
+                statusMessage.classList.add('text-green-500');
+
+            }, (error) => {
+                console.error("Firestore Listener Error:", error);
+                statusMessage.textContent = 'Connection Error!';
+                statusMessage.classList.remove('text-green-500', 'text-yellow-500');
+                statusMessage.classList.add('text-red-500');
+            });
+        };
+
+    </script>
+</body>
+</html>
