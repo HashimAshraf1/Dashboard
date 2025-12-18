@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TENG Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .status-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .device-name {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        
+        .impact-count {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .impact-count .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .impact-count .number {
+            font-size: 72px;
+            font-weight: bold;
+            line-height: 1;
+        }
+        
+        .timestamp {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        
+        .log-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            width: 100%;
+        }
+        
+        .log-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .log-button:active {
+            transform: translateY(0);
+        }
+        
+        .log-button.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .log-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="status-icon">⚡</div>
+        <h1>Impact Detected!</h1>
+        <div class="device-name">TENG Monitor</div>
+        
+        <div class="impact-count">
+            <div class="label">IMPACT COUNT</div>
+            <div class="number" id="impactNumber">--</div>
+        </div>
+        
+        <div class="timestamp" id="timestamp">Loading...</div>
+        
+        <button class="log-button" id="logButton" onclick="logToSheets()">
+            📊 Log to Google Sheets
+        </button>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="footer">
+            Scan NFC tag to view latest impact
+        </div>
+    </div>
+
+    <script>
+        // Get impact count from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const impactCount = urlParams.get('count') || '0';
+        const deviceId = urlParams.get('id') || 'TENG-001';
+        
+        // Display impact count
+        document.getElementById('impactNumber').textContent = impactCount;
+        
+        // Display current timestamp
+        const now = new Date();
+        const timestamp = now.toLocaleString('en-US', { 
+            dateStyle: 'medium', 
+            timeStyle: 'short' 
+        });
+        document.getElementById('timestamp').textContent = `Detected: ${timestamp}`;
+        
+        // Function to log to Google Sheets
+        function logToSheets() {
+            const button = document.getElementById('logButton');
+            const message = document.getElementById('message');
+            
+            // Disable button
+            button.disabled = true;
+            button.textContent = '⏳ Logging...';
+            
+            // Google Form submission URL (from your pre-filled link)
+            const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScOU1GA8oBnBUabzVITzT2M1duyaM9LAjzrZLvbqXEIKA-BTg/formResponse';
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('entry.1882396222', impactCount);  // Impact Count field
+            formData.append('entry.448159255', deviceId);      // Device ID field
+            
+            // Submit to Google Form
+            fetch(formUrl, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'  // Required for Google Forms
+            })
+            .then(() => {
+                // Success
+                button.textContent = '✅ Logged Successfully!';
+                button.classList.add('success');
+                message.className = 'message success';
+                message.textContent = `Impact #${impactCount} logged to Google Sheets!`;
+                message.style.display = 'block';
+            })
+            .catch((error) => {
+                // Error
+                button.disabled = false;
+                button.textContent = '📊 Log to Google Sheets';
+                message.className = 'message error';
+                message.textContent = 'Error logging data. Please try again.';
+                message.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>
