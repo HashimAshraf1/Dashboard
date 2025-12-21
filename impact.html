@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TENG Monitor</title>
+    <title>TENG Impact Monitor</title>
     <style>
         * {
             margin: 0;
@@ -13,91 +13,162 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
         
         .container {
-            background: white;
-            border-radius: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
-            width: 100%;
             padding: 40px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
             text-align: center;
+            margin-bottom: 30px;
         }
         
         .status-icon {
             font-size: 80px;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
+            margin-bottom: 15px;
+            animation: pulse 2s ease-in-out infinite;
         }
         
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            0%, 100% { 
+                transform: scale(1);
+                filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.5));
+            }
+            50% { 
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.8));
+            }
         }
         
-        h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .device-name {
-            color: #667eea;
-            font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 30px;
-        }
-        
-        .impact-count {
+        .title {
+            font-size: 32px;
+            font-weight: 800;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .impact-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
             color: white;
-            padding: 30px;
-            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .impact-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .impact-number {
+            font-size: 96px;
+            font-weight: 900;
+            line-height: 1;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        
+        .severity-badge {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .severity-low {
+            background: rgba(52, 211, 153, 0.9);
+            color: #064e3b;
+        }
+        
+        .severity-medium {
+            background: rgba(251, 191, 36, 0.9);
+            color: #78350f;
+        }
+        
+        .severity-high {
+            background: rgba(239, 68, 68, 0.9);
+            color: #7f1d1d;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
             margin: 30px 0;
         }
         
-        .impact-count .label {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 10px;
+        .info-item {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
         }
         
-        .impact-count .number {
-            font-size: 72px;
-            font-weight: bold;
-            line-height: 1;
+        .info-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 600;
         }
         
-        .timestamp {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 30px;
+        .info-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
         }
         
         .log-button {
+            width: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 18px 40px;
+            padding: 20px;
             font-size: 18px;
-            font-weight: bold;
-            border-radius: 50px;
+            font-weight: 700;
+            border-radius: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            width: 100%;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .log-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
         }
         
         .log-button:active {
@@ -105,7 +176,13 @@
         }
         
         .log-button.success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            animation: successPulse 0.6s ease;
+        }
+        
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .log-button:disabled {
@@ -115,52 +192,144 @@
         
         .message {
             margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 14px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
             display: none;
+            text-align: center;
         }
         
         .message.success {
-            background: #d4edda;
-            color: #155724;
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #34d399;
             display: block;
+            animation: slideIn 0.4s ease;
         }
         
         .message.error {
-            background: #f8d7da;
-            color: #721c24;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #f87171;
             display: block;
+            animation: slideIn 0.4s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .footer {
+            text-align: center;
             margin-top: 30px;
-            color: #999;
-            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .stat {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        .stat-low .stat-value { color: #10b981; }
+        .stat-medium .stat-value { color: #f59e0b; }
+        .stat-high .stat-value { color: #ef4444; }
+        
+        .device-id {
+            text-align: center;
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="status-icon">⚡</div>
-        <h1>Impact Detected!</h1>
-        <div class="device-name">TENG Monitor</div>
+        <div class="device-id">📟 DEVICE: TENG-001</div>
         
-        <div class="impact-count">
-            <div class="label">IMPACT COUNT</div>
-            <div class="number" id="impactNumber">--</div>
+        <div class="card">
+            <div class="header">
+                <div class="status-icon">⚠️</div>
+                <div class="title">Impact Detected</div>
+                <div class="subtitle">TENG Impact Monitoring System</div>
+            </div>
+            
+            <div class="impact-display">
+                <div class="impact-label">Impact Count</div>
+                <div class="impact-number" id="impactNumber">--</div>
+                <div class="severity-badge" id="severityBadge">Analyzing...</div>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">📅 Detected</div>
+                    <div class="info-value" id="dateValue">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">🕐 Time</div>
+                    <div class="info-value" id="timeValue">--</div>
+                </div>
+            </div>
+            
+            <div class="stats-bar">
+                <div class="stat stat-low">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">🟢 Low</div>
+                </div>
+                <div class="stat stat-medium">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">🟡 Medium</div>
+                </div>
+                <div class="stat stat-high">
+                    <div class="stat-value" id="totalImpacts">0</div>
+                    <div class="stat-label">🔴 High</div>
+                </div>
+            </div>
+            
+            <button class="log-button" id="logButton" onclick="logToSheets()">
+                📊 Log to Google Sheets
+            </button>
+            
+            <div class="message" id="message"></div>
         </div>
         
-        <div class="timestamp" id="timestamp">Loading...</div>
-        
-        <button class="log-button" id="logButton" onclick="logToSheets()">
-            📊 Log to Google Sheets
-        </button>
-        
-        <div class="message" id="message"></div>
-        
         <div class="footer">
-            Scan NFC tag to view latest impact
+            💡 Powered by Triboelectric Energy • Scan NFC for updates
         </div>
     </div>
 
@@ -172,14 +341,39 @@
         
         // Display impact count
         document.getElementById('impactNumber').textContent = impactCount;
+        document.getElementById('totalImpacts').textContent = impactCount;
         
-        // Display current timestamp
+        // Determine severity (you'll update these thresholds after drop tests)
+        let severity = 'LOW';
+        let severityClass = 'severity-low';
+        let severityEmoji = '🟢';
+        
+        // These are placeholder thresholds - update after calibration!
+        if (impactCount > 30) {
+            severity = 'DANGEROUS';
+            severityClass = 'severity-high';
+            severityEmoji = '🔴';
+        } else if (impactCount > 15) {
+            severity = 'ROUGH HANDLING';
+            severityClass = 'severity-medium';
+            severityEmoji = '🟡';
+        } else {
+            severity = 'NORMAL';
+            severityClass = 'severity-low';
+            severityEmoji = '🟢';
+        }
+        
+        const badge = document.getElementById('severityBadge');
+        badge.textContent = severityEmoji + ' ' + severity;
+        badge.className = 'severity-badge ' + severityClass;
+        
+        // Display timestamp
         const now = new Date();
-        const timestamp = now.toLocaleString('en-US', { 
-            dateStyle: 'medium', 
-            timeStyle: 'short' 
-        });
-        document.getElementById('timestamp').textContent = `Detected: ${timestamp}`;
+        const dateOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+        const timeOptions = { hour: '2-digit', minute: '2-digit' };
+        
+        document.getElementById('dateValue').textContent = now.toLocaleDateString('en-US', dateOptions);
+        document.getElementById('timeValue').textContent = now.toLocaleTimeString('en-US', timeOptions);
         
         // Function to log to Google Sheets
         function logToSheets() {
@@ -190,26 +384,26 @@
             button.disabled = true;
             button.textContent = '⏳ Logging...';
             
-            // Google Form submission URL (from your pre-filled link)
+            // Google Form submission URL
             const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScOU1GA8oBnBUabzVITzT2M1duyaM9LAjzrZLvbqXEIKA-BTg/formResponse';
             
             // Create form data
             const formData = new FormData();
-            formData.append('entry.1882396222', impactCount);  // Impact Count field
-            formData.append('entry.448159255', deviceId);      // Device ID field
+            formData.append('entry.1882396222', impactCount);  // Impact Count
+            formData.append('entry.448159255', deviceId);      // Device ID
             
             // Submit to Google Form
             fetch(formUrl, {
                 method: 'POST',
                 body: formData,
-                mode: 'no-cors'  // Required for Google Forms
+                mode: 'no-cors'
             })
             .then(() => {
                 // Success
                 button.textContent = '✅ Logged Successfully!';
                 button.classList.add('success');
                 message.className = 'message success';
-                message.textContent = `Impact #${impactCount} logged to Google Sheets!`;
+                message.textContent = `✅ Impact #${impactCount} logged to Google Sheets at ${now.toLocaleTimeString()}`;
                 message.style.display = 'block';
             })
             .catch((error) => {
@@ -217,9 +411,14 @@
                 button.disabled = false;
                 button.textContent = '📊 Log to Google Sheets';
                 message.className = 'message error';
-                message.textContent = 'Error logging data. Please try again.';
+                message.textContent = '❌ Error logging data. Please try again.';
                 message.style.display = 'block';
             });
+        }
+        
+        // Optional: Auto-update device ID in header if provided in URL
+        if (deviceId !== 'TENG-001') {
+            document.querySelector('.device-id').textContent = '📟 DEVICE: ' + deviceId;
         }
     </script>
 </body>
