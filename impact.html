@@ -459,37 +459,29 @@
         
         // Log to Google Sheets
         function logToSheets() {
+            // For mobile compatibility, open pre-filled form instead of JavaScript submission
+            const prefilledUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScOU1GA8oBnBUabzVITzT2M1duyaM9LAjzrZLvbqXEIKA-BTg/viewform?usp=pp_url' +
+                '&entry.1882396222=' + encodeURIComponent(impactCount) +
+                '&entry.448159255=' + encodeURIComponent(deviceId + ' - ' + severity);
+            
+            // Open form in new tab (works on all devices)
+            window.open(prefilledUrl, '_blank');
+            
+            // Update button
             const button = document.getElementById('logButton');
             const message = document.getElementById('message');
             
-            button.disabled = true;
-            button.textContent = '⏳ Logging...';
+            button.textContent = '✅ Form Opened!';
+            button.classList.add('success');
+            message.className = 'message success';
+            message.textContent = '📝 Form opened in new tab - just click Submit!';
+            message.style.display = 'block';
             
-            const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScOU1GA8oBnBUabzVITzT2M1duyaM9LAjzrZLvbqXEIKA-BTg/formResponse';
-            
-            const formData = new FormData();
-            formData.append('entry.1882396222', impactCount);
-            formData.append('entry.448159255', deviceId + ' - ' + severity);
-            
-            fetch(formUrl, {
-                method: 'POST',
-                body: formData,
-                mode: 'no-cors'
-            })
-            .then(() => {
-                button.textContent = '✅ Logged Successfully!';
-                button.classList.add('success');
-                message.className = 'message success';
-                message.textContent = `✅ Impact #${impactCount} (${severity}) logged at ${now.toLocaleTimeString()}`;
-                message.style.display = 'block';
-            })
-            .catch(() => {
-                button.disabled = false;
+            // Reset button after 3 seconds
+            setTimeout(() => {
                 button.textContent = '📊 Log to Google Sheets';
-                message.className = 'message error';
-                message.textContent = '❌ Error logging. Please try again.';
-                message.style.display = 'block';
-            });
+                button.classList.remove('success');
+            }, 3000);
         }
     </script>
 </body>
