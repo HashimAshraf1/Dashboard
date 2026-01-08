@@ -13,250 +13,508 @@
         
         body {
             font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            background: #000;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Animated gradient background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #4facfe);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            opacity: 0.15;
+            z-index: 0;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float linear infinite;
+            z-index: 1;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
         }
         
         .container {
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
+            position: relative;
+            z-index: 10;
         }
         
         .card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 28px;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.4);
-            padding: 45px;
+            background: rgba(20, 20, 30, 0.95);
+            border-radius: 32px;
+            padding: 50px;
             margin-bottom: 20px;
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-        
-        .status-icon {
-            font-size: 90px;
-            margin-bottom: 20px;
-            animation: alertPulse 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.6));
-        }
-        
-        @keyframes alertPulse {
-            0%, 100% { 
-                transform: scale(1) rotate(0deg);
-            }
-            25% { 
-                transform: scale(1.1) rotate(-5deg);
-            }
-            75% { 
-                transform: scale(1.1) rotate(5deg);
-            }
-        }
-        
-        .title {
-            font-size: 36px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            letter-spacing: -1px;
-        }
-        
-        .subtitle {
-            color: #64748b;
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        
-        .impact-display {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            border-radius: 24px;
-            padding: 45px;
-            text-align: center;
-            color: white;
-            margin: 35px 0;
-            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6),
+                        0 0 0 1px rgba(255, 255, 255, 0.05);
             position: relative;
             overflow: hidden;
         }
         
-        .impact-display::before {
+        .card::before {
             content: '';
             position: absolute;
             top: -50%;
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            animation: rotateBg 20s linear infinite;
+        }
+        
+        @keyframes rotateBg {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 2;
+            overflow: visible;
+        }
+        
+        .status-icon {
+            font-size: 100px;
+            margin-bottom: 25px;
+            display: inline-block;
+            animation: packageDrop 5s ease-in-out infinite;
+            filter: drop-shadow(0 10px 30px rgba(239, 68, 68, 0.6));
+            position: relative;
+        }
+        
+        /* Flying debris pieces */
+        .shard {
+            position: absolute;
+            font-size: 30px;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .shard1 { animation: shatter1 5s ease-out infinite; left: 50%; top: 50%; }
+        .shard2 { animation: shatter2 5s ease-out infinite; left: 50%; top: 50%; }
+        .shard3 { animation: shatter3 5s ease-out infinite; left: 50%; top: 50%; }
+        .shard4 { animation: shatter4 5s ease-out infinite; left: 50%; top: 50%; }
+        .shard5 { animation: shatter5 5s ease-out infinite; left: 50%; top: 50%; }
+        .shard6 { animation: shatter6 5s ease-out infinite; left: 50%; top: 50%; }
+        .shard7 { animation: shatter7 5s ease-out infinite; left: 50%; top: 50%; }
+        .shard8 { animation: shatter8 5s ease-out infinite; left: 50%; top: 50%; }
+        
+        @keyframes packageDrop {
+            0% { 
+                transform: translateY(-60px) rotate(-8deg) scale(1);
+                filter: drop-shadow(0 5px 20px rgba(239, 68, 68, 0.3));
+                opacity: 1;
+            }
+            38% { 
+                transform: translateY(-60px) rotate(-8deg) scale(1);
+            }
+            48% {
+                transform: translateY(10px) rotate(5deg) scale(1.05);
+                filter: drop-shadow(0 40px 60px rgba(239, 68, 68, 0.9));
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(10px) rotate(0deg) scale(0.7);
+                filter: drop-shadow(0 0 80px rgba(255, 68, 68, 1));
+                opacity: 0.3;
+            }
+            52% {
+                transform: translateY(10px) rotate(360deg) scale(0.1);
+                opacity: 0;
+            }
+            75% {
+                opacity: 0;
+                transform: translateY(-60px) scale(0.5);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(-60px) rotate(-8deg) scale(1);
+            }
+            100% { 
+                transform: translateY(-60px) rotate(-8deg) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Each shard flies in different direction */
+        @keyframes shatter1 {
+            0%, 49% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
+            50% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            65% { opacity: 1; transform: translate(-120px, -80px) rotate(-180deg) scale(1.2); }
+            75% { opacity: 0; transform: translate(-150px, 60px) rotate(-360deg) scale(0.3); }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes shatter2 {
+            0%, 49% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
+            50% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            65% { opacity: 1; transform: translate(120px, -100px) rotate(200deg) scale(1.3); }
+            75% { opacity: 0; transform: translate(180px, 40px) rotate(400deg) scale(0.2); }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes shatter3 {
+            0%, 49% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
+            50% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            65% { opacity: 1; transform: translate(-80px, 90px) rotate(-90deg) scale(1.1); }
+            75% { opacity: 0; transform: translate(-120px, 150px) rotate(-180deg) scale(0.4); }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes shatter4 {
+            0%, 49% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
+            50% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            65% { opacity: 1; transform: translate(100px, 110px) rotate(120deg) scale(1.4); }
+            75% { opacity: 0; transform: translate(140px, 180px) rotate(240deg) scale(0.3); }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes shatter5 {
+            0%, 49% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
+            50% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            65% { opacity: 1; transform: translate(0px, -120px) rotate(45deg) scale(1.2); }
+            75% { opacity: 0; transform: translate(30px, -180px) rotate(90deg) scale(0.2); }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes shatter6 {
+            0%, 49% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
+            50% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            65% { opacity: 1; transform: translate(-150px, 50px) rotate(-270deg) scale(1.3); }
+            75% { opacity: 0; transform: translate(-200px, 120px) rotate(-450deg) scale(0.3); }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes shatter7 {
+            0%, 49% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
+            50% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            65% { opacity: 1; transform: translate(140px, 0px) rotate(300deg) scale(1.1); }
+            75% { opacity: 0; transform: translate(200px, 80px) rotate(500deg) scale(0.4); }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes shatter8 {
+            0%, 49% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
+            50% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            65% { opacity: 1; transform: translate(-40px, -140px) rotate(-45deg) scale(1.2); }
+            75% { opacity: 0; transform: translate(-60px, -200px) rotate(-90deg) scale(0.3); }
+            100% { opacity: 0; }
+        }
+        
+        .title {
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #8b5cf6 30%, #d946ef 60%, #f97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -1.5px;
+            text-shadow: 0 0 40px rgba(102, 126, 234, 0.5);
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .impact-display {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            border-radius: 28px;
+            padding: 50px;
+            text-align: center;
+            color: white;
+            margin: 40px 0;
+            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.5),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        
+        .impact-display::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 70%);
             animation: shimmer 3s linear infinite;
         }
         
         @keyframes shimmer {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
         
         .impact-label {
             font-size: 13px;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             opacity: 0.95;
-            margin-bottom: 15px;
-            font-weight: 700;
+            margin-bottom: 20px;
+            font-weight: 800;
             position: relative;
             z-index: 1;
         }
         
         .impact-number {
-            font-size: 110px;
+            font-size: 120px;
             font-weight: 900;
             line-height: 1;
-            text-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            text-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
             position: relative;
             z-index: 1;
+            animation: countGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes countGlow {
+            0%, 100% { text-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); }
+            50% { text-shadow: 0 10px 60px rgba(255, 255, 255, 0.3); }
         }
         
         .severity-badge {
             display: inline-block;
-            padding: 14px 30px;
+            padding: 16px 35px;
             border-radius: 50px;
-            font-weight: 800;
-            font-size: 15px;
-            margin-top: 25px;
+            font-weight: 900;
+            font-size: 16px;
+            margin-top: 30px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             position: relative;
             z-index: 1;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); }
         }
         
         .severity-low {
-            background: rgba(16, 185, 129, 1);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
         }
         
         .severity-medium {
-            background: rgba(245, 158, 11, 1);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: white;
         }
         
         .severity-high {
-            background: rgba(239, 68, 68, 1);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
-            animation: dangerPulse 1.5s ease-in-out infinite;
+            animation: dangerShake 0.5s ease-in-out infinite;
         }
         
-        @keyframes dangerPulse {
-            0%, 100% { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4); }
-            50% { box-shadow: 0 8px 30px rgba(239, 68, 68, 0.7); }
+        @keyframes dangerShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
         }
         
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 18px;
-            margin: 35px 0;
+            gap: 20px;
+            margin: 40px 0;
+            position: relative;
+            z-index: 2;
         }
         
         .info-item {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            padding: 24px;
-            border-radius: 20px;
-            border: 2px solid #e2e8f0;
+            background: rgba(30, 41, 59, 0.8);
+            padding: 28px;
+            border-radius: 24px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
         
         .info-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3);
         }
         
         .info-label {
             font-size: 12px;
-            color: #64748b;
+            color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 10px;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
             font-weight: 700;
         }
         
         .info-value {
-            font-size: 22px;
-            font-weight: 800;
-            color: #0f172a;
+            font-size: 24px;
+            font-weight: 900;
+            color: #f1f5f9;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
         
         .stats-bar {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            margin: 30px 0;
-            padding: 25px;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 20px;
-            border: 2px solid #e2e8f0;
+            gap: 18px;
+            margin: 35px 0;
+            position: relative;
+            z-index: 2;
         }
         
         .stat {
             text-align: center;
-            padding: 15px;
-            border-radius: 16px;
+            padding: 25px 15px;
+            border-radius: 20px;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .stat:hover::before {
+            left: 100%;
         }
         
         .stat:hover {
-            transform: scale(1.05);
+            transform: translateY(-5px) scale(1.05);
         }
         
         .stat-value {
-            font-size: 42px;
+            font-size: 48px;
             font-weight: 900;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
         
         .stat-label {
             font-size: 11px;
-            color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 700;
+            letter-spacing: 2px;
+            font-weight: 800;
+            opacity: 0.9;
         }
         
-        .stat-low { background: rgba(16, 185, 129, 0.1); }
+        .stat-low { 
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.3) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
         .stat-low .stat-value { color: #10b981; }
+        .stat-low .stat-label { color: #6ee7b7; }
         
-        .stat-medium { background: rgba(245, 158, 11, 0.1); }
+        .stat-medium { 
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.3) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
         .stat-medium .stat-value { color: #f59e0b; }
+        .stat-medium .stat-label { color: #fbbf24; }
         
-        .stat-high { background: rgba(239, 68, 68, 0.1); }
+        .stat-high { 
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.3) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
         .stat-high .stat-value { color: #ef4444; }
+        .stat-high .stat-label { color: #fca5a5; }
         
         .log-button {
             width: 100%;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
             color: white;
             border: none;
-            padding: 22px;
-            font-size: 17px;
-            font-weight: 800;
-            border-radius: 18px;
+            padding: 24px;
+            font-size: 18px;
+            font-weight: 900;
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.4);
             text-transform: uppercase;
             letter-spacing: 2px;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+        
+        .log-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        
+        .log-button:hover::before {
+            width: 300px;
+            height: 300px;
         }
         
         .log-button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.6);
+            box-shadow: 0 20px 50px rgba(99, 102, 241, 0.6);
         }
         
         .log-button:active {
@@ -265,27 +523,24 @@
         
         .log-button.success {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            animation: successBounce 0.6s ease;
+            animation: successPop 0.6s ease;
         }
         
-        @keyframes successBounce {
+        @keyframes successPop {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
         
-        .log-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
         .message {
-            margin-top: 20px;
-            padding: 18px 24px;
-            border-radius: 16px;
+            margin-top: 25px;
+            padding: 20px 26px;
+            border-radius: 18px;
             font-size: 15px;
             font-weight: 700;
             display: none;
             text-align: center;
+            position: relative;
+            z-index: 2;
         }
         
         .message.success {
@@ -293,18 +548,10 @@
             color: #065f46;
             border: 2px solid #34d399;
             display: block;
-            animation: slideInUp 0.5s ease;
+            animation: messageSlide 0.5s ease;
         }
         
-        .message.error {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            color: #991b1b;
-            border: 2px solid #f87171;
-            display: block;
-            animation: slideInUp 0.5s ease;
-        }
-        
-        @keyframes slideInUp {
+        @keyframes messageSlide {
             from {
                 opacity: 0;
                 transform: translateY(20px);
@@ -317,54 +564,79 @@
         
         .footer {
             text-align: center;
-            margin-top: 35px;
-            color: rgba(255,255,255,0.9);
-            font-size: 14px;
-            font-weight: 600;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin-top: 40px;
+            color: #94a3b8;
+            font-size: 15px;
+            font-weight: 700;
+            position: relative;
+            z-index: 2;
+            letter-spacing: 1px;
+        }
+        
+        .footer span {
+            background: linear-gradient(135deg, #667eea 0%, #8b5cf6 50%, #d946ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
         }
         
         .device-id {
             text-align: center;
             font-size: 13px;
-            color: rgba(255,255,255,0.85);
-            margin-bottom: 15px;
+            color: #64748b;
+            margin-bottom: 20px;
             font-weight: 700;
             letter-spacing: 3px;
             text-transform: uppercase;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        
-        .intensity-value {
-            font-size: 16px;
-            color: rgba(255,255,255,0.9);
-            margin-top: 10px;
-            font-weight: 600;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
     </style>
 </head>
 <body>
+    <!-- Animated background -->
+    <div class="bg-gradient"></div>
+    
+    <!-- Floating particles -->
+    <script>
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+    
     <div class="container">
-        <div class="device-id">📟 DEVICE: TENG-001</div>
+        <div class="device-id">⚡ DEVICE: TENG-001</div>
         
         <div class="card">
             <div class="header">
-                <div class="status-icon">⚠️</div>
+                <div class="status-icon">📦</div>
+                <!-- Flying debris -->
+                <div class="shard shard1">📄</div>
+                <div class="shard shard2">📎</div>
+                <div class="shard shard3">📌</div>
+                <div class="shard shard4">✉️</div>
+                <div class="shard shard5">🔧</div>
+                <div class="shard shard6">⚙️</div>
+                <div class="shard shard7">💿</div>
+                <div class="shard shard8">🔩</div>
                 <div class="title">Impact Detected</div>
-                <div class="subtitle">TENG Impact Monitoring System</div>
+                <div class="subtitle">Triboelectric Monitoring System</div>
             </div>
             
             <div class="impact-display">
-                <div class="impact-label">Impact Count</div>
+                <div class="impact-label">Total Impacts</div>
                 <div class="impact-number" id="impactNumber">--</div>
                 <div class="severity-badge" id="severityBadge">Analyzing...</div>
             </div>
             
             <div class="info-grid">
                 <div class="info-item">
-                    <div class="info-label">📅 Detected</div>
+                    <div class="info-label">📅 Date</div>
                     <div class="info-value" id="dateValue">--</div>
                 </div>
                 <div class="info-item">
@@ -396,21 +668,18 @@
         </div>
         
         <div class="footer">
-            ⚡ Powered by Triboelectric Energy • Scan NFC for updates
+            Made with ⚡ by <span>Hashim Ashraf</span>
         </div>
     </div>
 
     <script>
-        // Get parameters from URL
         const urlParams = new URLSearchParams(window.location.search);
         const impactCount = parseInt(urlParams.get('count')) || 0;
-        const severityParam = urlParams.get('sev') || 'l'; // l=low, m=medium, h=high
+        const severityParam = urlParams.get('sev') || 'l';
         const deviceId = urlParams.get('id') || 'TENG-001';
         
-        // Display impact count
         document.getElementById('impactNumber').textContent = impactCount;
         
-        // Determine severity from URL parameter
         let severity, severityClass, severityEmoji;
         
         if (severityParam === 'h') {
@@ -427,20 +696,14 @@
             severityEmoji = '🟢';
         }
         
-        // Update badge
         const badge = document.getElementById('severityBadge');
         badge.textContent = severityEmoji + ' ' + severity;
         badge.className = 'severity-badge ' + severityClass;
         
-
-        
-        // Calculate estimated breakdown (simplified - you'll replace with actual counts later)
-        // For now, estimate based on total count
         let lowEst = Math.floor(impactCount * 0.6);
         let medEst = Math.floor(impactCount * 0.3);
         let highEst = impactCount - lowEst - medEst;
         
-        // Update current impact in correct category
         if (severityParam === 'h') highEst++;
         else if (severityParam === 'm') medEst++;
         else lowEst++;
@@ -449,7 +712,6 @@
         document.getElementById('mediumCount').textContent = medEst;
         document.getElementById('highCount').textContent = highEst;
         
-        // Display timestamp
         const now = new Date();
         const dateOptions = { month: 'short', day: 'numeric', year: 'numeric' };
         const timeOptions = { hour: '2-digit', minute: '2-digit' };
@@ -457,27 +719,22 @@
         document.getElementById('dateValue').textContent = now.toLocaleDateString('en-US', dateOptions);
         document.getElementById('timeValue').textContent = now.toLocaleTimeString('en-US', timeOptions);
         
-        // Log to Google Sheets
         function logToSheets() {
-            // For mobile compatibility, open pre-filled form instead of JavaScript submission
             const prefilledUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScOU1GA8oBnBUabzVITzT2M1duyaM9LAjzrZLvbqXEIKA-BTg/viewform?usp=pp_url' +
                 '&entry.1882396222=' + encodeURIComponent(impactCount) +
                 '&entry.448159255=' + encodeURIComponent(deviceId + ' - ' + severity);
             
-            // Open form in new tab (works on all devices)
             window.open(prefilledUrl, '_blank');
             
-            // Update button
             const button = document.getElementById('logButton');
             const message = document.getElementById('message');
             
             button.textContent = '✅ Form Opened!';
             button.classList.add('success');
             message.className = 'message success';
-            message.textContent = '📝 Form opened in new tab - just click Submit!';
+            message.textContent = '📝 Form opened - Click Submit to log impact #' + impactCount;
             message.style.display = 'block';
             
-            // Reset button after 3 seconds
             setTimeout(() => {
                 button.textContent = '📊 Log to Google Sheets';
                 button.classList.remove('success');
